@@ -7,13 +7,14 @@ import Utils
 import random
 
 class Model:
-    def __init__(self, person_arriving, early_params, classes_finished, classes_person_params, classes_finish_params, classes_empty_params, display = False):
+    def __init__(self, person_arriving, arrive_params, classes_finished, classes_person_params, classes_finish_params, classes_empty_params, display = False):
         # Initialize Persons
         self.arrivingPersons = []
         self.persons = []
+        self.arrivedPersons = []
 
         for _ in range(person_arriving):
-            arrive_time = Utils.normal(early_params) * 60
+            arrive_time = Utils.normal(arrive_params) * 60
             pos = Utils.random_pos(Coordinate.Hall(0), person_size)
             target_floor = random.randint(1, floor_count-1)
             target_pos = Utils.random_pos(Coordinate.Hall(target_floor), person_size, "y")
@@ -28,11 +29,11 @@ class Model:
                 person_time = class_finish_time + Utils.uniform(classes_empty_params) * 60
                 print(class_finish_time, person_time)
                 person_pos = Utils.random_pos(Coordinate.Hall(class_floor), person_size, class_room)
-                target_pos = Utils.random_pos(Coordinate.Hall(0), person_size)
+                target_pos = Utils.random_pos(Coordinate.Hall(0), person_size, "d")
                 self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos))
 
-        self.startTime = min([person.arrive_time for person in self.arrivingPersons])
-        self.arrivingPersons.sort(key=lambda person: person.arrive_time, reverse=True)
+        self.startTime = min([person.start_time for person in self.arrivingPersons])
+        self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)
 
         self.lifts = [LiftAgent() for _ in range(lift_count)]
         if display:
@@ -42,10 +43,15 @@ class Model:
         self.time += time_step
         print(f"Time: {(self.time/60):.2f} menit")
 
-        while self.arrivingPersons and self.arrivingPersons[-1].arrive_time <= self.time:
+        while self.arrivingPersons and self.arrivingPersons[-1].start_time <= self.time:
             self.persons.append(self.arrivingPersons[-1])
             self.arrivingPersons.pop()
-        pass
+        
+        for person in self.persons:
+            person.step(self.time)
+
+        self.arrivedPersons += [person for person in self.persons if person.finish_time]
+        self.persons = [person for person in self.persons if not person.finish_time]
 
     def run_simulation(self):
         self.time = self.startTime

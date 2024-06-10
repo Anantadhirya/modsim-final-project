@@ -2,6 +2,9 @@ import random
 import numpy as np
 import math
 
+from Settings import *
+
+# Random Utils
 def random_between(l, r):
     return random.random() * (r-l) + l
 
@@ -32,3 +35,17 @@ def normal(normal_params):
 
 def uniform(uniform_params):
     return random_between(uniform_params[0], uniform_params[1])
+
+# Vector Utils
+def norm(v):
+    return math.sqrt(v[0]**2 + v[1]**2)
+
+def normalize(v):
+    return v / norm(v)
+
+def move(pos, target, speed):
+    direction = normalize(target - pos)
+    return target if norm(target - pos) < speed * time_step else pos + direction * speed * time_step
+
+def equal_pos(a, b):
+    return norm(a-b) < 0.001
