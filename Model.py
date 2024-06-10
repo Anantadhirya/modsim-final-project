@@ -13,20 +13,30 @@ class Model:
         self.persons = []
 
         for _ in range(person_arriving):
-            arrive_time = Utils.normal(early_params)
+            arrive_time = Utils.normal(early_params) * 60
             pos = Utils.random_pos(Coordinate.Hall(0), person_size)
             target_floor = random.randint(1, floor_count-1)
-            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), person_size)
+            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), person_size, "y")
             self.arrivingPersons.append(PersonAgent(arrive_time, pos, 0, target_floor, target_pos))
+
+        self.startTime = min([person.arrive_time for person in self.arrivingPersons])
+        self.arrivingPersons.sort(key=lambda person: person.arrive_time, reverse=True)
 
         self.lifts = [LiftAgent() for _ in range(lift_count)]
         if display:
             self.display = ModelDisplay()
 
     def step(self):
+        self.time += time_step
+        print(f"Time: {(self.time/60):.2f} menit")
+
+        while self.arrivingPersons and self.arrivingPersons[-1].arrive_time <= self.time:
+            self.persons.append(self.arrivingPersons[-1])
+            self.arrivingPersons.pop()
         pass
 
     def run_simulation(self):
+        self.time = self.startTime
         while True:
             self.step()
             if self.display:

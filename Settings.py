@@ -1,3 +1,4 @@
+time_step = 1
 person_size = 0.5
 
 # SGLC Settings
