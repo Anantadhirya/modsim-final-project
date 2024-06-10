@@ -6,6 +6,30 @@ from Settings import *
 from State import State, forbidden_grid
 import Utils
 
+class Target:
+    @staticmethod
+    def StairsUpQueue(floor):
+        return [np.array([Coordinate.StairsUp(floor).x - 3, Coordinate.StairsUp(floor).y2])]
+    @staticmethod
+    def StairsDownQueue(floor):
+        return [np.array([Coordinate.StairsDown(floor).x - 3, Coordinate.StairsDown(floor).y2])]
+    @staticmethod
+    def StairsUpRoute(floor):
+        return [
+            np.array([Coordinate.StairsUp(floor).x - 2, Coordinate.StairsUp(floor).y2]),
+            np.array([Coordinate.StairsBetween(floor).x, Coordinate.StairsUp(floor).y2]),
+            np.array([Coordinate.StairsBetween(floor).x, Coordinate.StairsDown(floor+1).y]),
+            np.array([Coordinate.StairsDown(floor+1).x - 2, Coordinate.StairsDown(floor+1).y])
+        ]
+    @staticmethod
+    def StairsDownRoute(floor):
+        return [
+            np.array([Coordinate.StairsDown(floor).x - 1, Coordinate.StairsDown(floor).y2]),
+            np.array([Coordinate.StairsBetween(floor-1).x + 1, Coordinate.StairsDown(floor).y2]),
+            np.array([Coordinate.StairsBetween(floor-1).x + 1, Coordinate.StairsUp(floor-1).y]),
+            np.array([Coordinate.StairsUp(floor-1).x - 1, Coordinate.StairsUp(floor-1).y])
+        ]
+
 class PersonAgent:
     def __init__(self, start_time, pos, current_floor, target_floor, target_floor_pos):
         self.start_time = start_time
@@ -29,28 +53,18 @@ class PersonAgent:
             if self.target_floor > self.current_floor:
                 if self.state == State.start:
                     self.state = State.stairs_queue
-                    self.target_pos = [np.array([Coordinate.StairsUp(self.current_floor).x - 3, Coordinate.StairsUp(self.current_floor).y2])]
+                    self.target_pos = Target.StairsUpQueue(self.current_floor)
                 elif self.state == State.stairs_up or self.state == State.stairs_queue:
                     self.state = State.stairs_up
-                    self.target_pos = [
-                        np.array([Coordinate.StairsUp(self.current_floor).x - 2, Coordinate.StairsUp(self.current_floor).y2]),
-                        np.array([Coordinate.StairsBetween(self.current_floor).x, Coordinate.StairsUp(self.current_floor).y2]),
-                        np.array([Coordinate.StairsBetween(self.current_floor).x, Coordinate.StairsDown(self.current_floor+1).y]),
-                        np.array([Coordinate.StairsDown(self.current_floor+1).x - 2, Coordinate.StairsDown(self.current_floor+1).y])
-                    ]
+                    self.target_pos = Target.StairsUpRoute(self.current_floor)
                     self.current_floor += 1
             elif self.target_floor < self.current_floor:
                 if self.state == State.start:
                     self.state = State.stairs_queue
-                    self.target_pos = [np.array([Coordinate.StairsDown(self.current_floor).x - 3, Coordinate.StairsDown(self.current_floor).y2])]
+                    self.target_pos = Target.StairsDownQueue(self.current_floor)
                 elif self.state == State.stairs_down or (self.state == State.stairs_queue and not grid.get(Utils.key([self.grid_pos[0]+2, self.grid_pos[1]+1]), 1) and not grid.get(Utils.key([self.grid_pos[0]+1, self.grid_pos[1]-1]), 1)):
                     self.state = State.stairs_down
-                    self.target_pos = [
-                        np.array([Coordinate.StairsDown(self.current_floor).x - 1, Coordinate.StairsDown(self.current_floor).y2]),
-                        np.array([Coordinate.StairsBetween(self.current_floor-1).x + 1, Coordinate.StairsDown(self.current_floor).y2]),
-                        np.array([Coordinate.StairsBetween(self.current_floor-1).x + 1, Coordinate.StairsUp(self.current_floor-1).y]),
-                        np.array([Coordinate.StairsUp(self.current_floor-1).x - 1, Coordinate.StairsUp(self.current_floor-1).y])
-                    ]
+                    self.target_pos = Target.StairsDownRoute(self.current_floor)
                     self.current_floor -= 1
             else:
                 if Utils.equal_pos(self.pos, self.target_floor_pos):
