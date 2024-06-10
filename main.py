@@ -1,4 +1,4 @@
 from Model import Model
 
-model = Model(100, [15, 5], 8, [70, 3], [10, 2], [3, 2], True)
+model = Model(100, [15, 5], 8, [83.70, 23.89], [10, 2], [0.5, 15], True)
 model.run_simulation()

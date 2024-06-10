@@ -29,3 +29,6 @@ def normal(normal_params):
     a = 2*math.pi*random.random()
     b = sigma*math.sqrt(-2*math.log(random.random()))
     return b * math.sin(a) + mu
+
+def uniform(uniform_params):
+    return random_between(uniform_params[0], uniform_params[1])
