@@ -65,7 +65,7 @@ class ModelDisplay:
     def mapCoordinatePoint(self, pos):
         return np.array([pos[0] * self.scale + self.offset[0], self.screen.get_height() - (pos[1] * self.scale + self.offset[1])])
 
-    def redraw(self, personList):
+    def redraw(self, persons):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -77,7 +77,7 @@ class ModelDisplay:
         for rectangle, color in self.rectangles:
             pygame.draw.rect(self.screen, color, rectangle)
         
-        for person in personList:
+        for person in persons:
             pygame.draw.circle(self.screen, (0, 0, 255), self.mapCoordinatePoint(person.pos), person_size*self.scale)
         pygame.display.flip()
         pygame.time.Clock().tick(60)

@@ -7,8 +7,8 @@ import Utils
 
 class Model:
     def __init__(self, N, display = False):
-        self.listPerson = [PersonAgent(Utils.randomPos(Coordinate.Hall(0), person_size)) for _ in range(N)]
-        self.listLift = [LiftAgent() for _ in range(lift_count)]
+        self.persons = [PersonAgent(Utils.randomPos(Coordinate.Hall(0), person_size)) for _ in range(N)]
+        self.lifts = [LiftAgent() for _ in range(lift_count)]
         if display:
             self.display = ModelDisplay()
 
@@ -19,4 +19,4 @@ class Model:
         while True:
             self.step()
             if self.display:
-                self.display.redraw(self.listPerson)
+                self.display.redraw(self.persons)
