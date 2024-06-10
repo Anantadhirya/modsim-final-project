@@ -32,4 +32,16 @@ class Coordinate:
         return Coordinate(x=Coordinate.StairsUp(floor).x2 + 1, y=Coordinate.StairsUp(floor).y, w=stairs_width, h=2*stairs_width+gap)
     @staticmethod
     def LiftTrack(lift):
-        return Coordinate(x=-(lift + 1) * (lift_size + gap), y=0.0, w=lift_size, h=Coordinate.Hall(floor_count-1).y2 + 1)
+        return Coordinate(x=-(lift + 1) * (lift_size + gap + 2*lift_gap_x), y=0.0, w=lift_size+2*lift_gap_x, h=Coordinate.Hall(floor_count-1).y2 + 1)
+    @staticmethod
+    def Lift(lift, y):
+        lift = 3 - lift
+        return Coordinate(x=-(lift + 1) * (lift_size + gap + 2*lift_gap_x) + lift_gap_x, y=y, w=lift_size, h=lift_size)
+    @staticmethod
+    def LiftDoorInside(lift, y):
+        up = ~lift&1
+        return Coordinate(x=Coordinate.Lift(lift, y).x + lift_door_inside_gap, y=Coordinate.Lift(lift, y).y2 - lift_door_height + 1 if up else Coordinate.Lift(lift, y).y, w=lift_door_width, h=lift_door_height)
+    @staticmethod
+    def LiftDoorOutside(floor, lift):
+        up = lift&1
+        return Coordinate.LiftDoorUp(floor, lift // 2) if up else Coordinate.LiftDoorDown(floor, lift // 2)

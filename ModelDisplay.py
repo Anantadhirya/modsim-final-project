@@ -9,7 +9,8 @@ class Color:
     white = (255, 255, 255)
     wood = (205, 133, 63)
     gray = (128, 128, 128)
-    light_gray = (211, 211, 211)
+    light_gray = (160, 160, 160)
+    light_gray_bg = (211, 211, 211)
 
 class ModelDisplay:
     def __init__(self):
@@ -23,9 +24,12 @@ class ModelDisplay:
         self.initRectangles()
         self.initBounds()
         self.rectangles = [(self.mapRectangle(rectangle[0]), rectangle[1]) for rectangle in self.rectangles]
+
+    def toRectangle(self, pos: Coordinate):
+        return (pos.x - 0.5, pos.y - 0.5, pos.w, pos.h)
     
     def addRectangle(self, pos: Coordinate, color):
-        self.rectangles.append(((pos.x - 0.5, pos.y - 0.5, pos.w, pos.h), color))
+        self.rectangles.append((self.toRectangle(pos), color))
 
     def initRectangles(self):
         self.rectangles = []
@@ -33,9 +37,8 @@ class ModelDisplay:
             self.addRectangle(Coordinate.LiftHall(floor), Color.wood)
             self.addRectangle(Coordinate.Hall(floor), Color.wood)
 
-            for lift in range(lift_count // 2):
-                self.addRectangle(Coordinate.LiftDoorUp(floor, lift), Color.gray)
-                self.addRectangle(Coordinate.LiftDoorDown(floor, lift), Color.gray)
+            for lift in range(lift_count):
+                self.addRectangle(Coordinate.LiftDoorOutside(floor, lift), Color.gray)
 
             # class_hall_bottom = patches.Rectangle((lift_hall_width + (hall_width - class_hall_height) / 2, floor * (hall_height + gap) - class_hall_height), class_hall_width, class_hall_height, linewidth=2, edgecolor='black', facecolor='none')
             # self.ax.add_patch(class_hall_bottom)
@@ -47,7 +50,7 @@ class ModelDisplay:
             self.addRectangle(Coordinate.StairsBetween(floor), Color.wood)
         
         for lift in range(lift_count):
-            self.addRectangle(Coordinate.LiftTrack(lift), Color.light_gray)
+            self.addRectangle(Coordinate.LiftTrack(lift), Color.light_gray_bg)
             
     def initBounds(self):
         self.bounds = [math.inf, math.inf, 0, 0]
@@ -65,7 +68,7 @@ class ModelDisplay:
     def mapCoordinatePoint(self, pos):
         return np.array([pos[0] * self.scale + self.offset[0], self.screen.get_height() - (pos[1] * self.scale + self.offset[1])])
 
-    def redraw(self, persons):
+    def redraw(self, persons, lifts):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -82,5 +85,10 @@ class ModelDisplay:
             # if person.target_pos:
             #     pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(person.target_pos[0]), person_size*self.scale)
             pygame.draw.circle(self.screen, (0, 0, 255), self.mapCoordinatePoint(person.pos), person_size*self.scale)
+        
+        for lift in range(lift_count):
+            pygame.draw.rect(self.screen, Color.light_gray, self.mapRectangle(self.toRectangle(Coordinate.Lift(lift, lifts[lift].y))))
+            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
+
         pygame.display.flip()
         pygame.time.Clock().tick(60)

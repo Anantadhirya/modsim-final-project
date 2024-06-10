@@ -3,7 +3,6 @@ from LiftAgent import LiftAgent
 from ModelDisplay import ModelDisplay
 from Coordinate import Coordinate
 from Settings import *
-from State import State
 import Utils
 import random
 
@@ -37,6 +36,7 @@ class Model:
         self.startTime = min([person.start_time for person in self.arrivingPersons])
         self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)
 
+        # Initialize Lifts
         self.lifts = [LiftAgent() for _ in range(lift_count)]
 
         self.init_building_grid()
@@ -88,4 +88,4 @@ class Model:
         while True:
             self.step()
             if self.display:
-                self.display.redraw(self.persons)
+                self.display.redraw(self.persons, self.lifts)
