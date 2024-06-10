@@ -21,18 +21,18 @@ class PersonAgent:
         if not self.target_pos:
             if self.target_floor > self.current_floor:
                 self.target_pos = [
-                    np.array([Coordinate.StairsUp(self.current_floor).x - person_size, Coordinate.StairsUp(self.current_floor).y2 - person_size]),
-                    np.array([Coordinate.StairsBetween(self.current_floor).x + person_size, Coordinate.StairsUp(self.current_floor).y2 - person_size]),
-                    np.array([Coordinate.StairsBetween(self.current_floor).x + person_size, Coordinate.StairsDown(self.current_floor+1).y + person_size]),
-                    np.array([Coordinate.StairsDown(self.current_floor+1).x - 3*person_size, Coordinate.StairsDown(self.current_floor+1).y + person_size])
+                    np.array([Coordinate.StairsUp(self.current_floor).x - 2, Coordinate.StairsUp(self.current_floor).y2]),
+                    np.array([Coordinate.StairsBetween(self.current_floor).x, Coordinate.StairsUp(self.current_floor).y2]),
+                    np.array([Coordinate.StairsBetween(self.current_floor).x, Coordinate.StairsDown(self.current_floor+1).y]),
+                    np.array([Coordinate.StairsDown(self.current_floor+1).x - 2, Coordinate.StairsDown(self.current_floor+1).y])
                 ]
                 self.current_floor += 1
             elif self.target_floor < self.current_floor:
                 self.target_pos = [
-                    np.array([Coordinate.StairsDown(self.current_floor).x - person_size, Coordinate.StairsDown(self.current_floor).y2 - person_size]),
-                    np.array([Coordinate.StairsBetween(self.current_floor-1).x + 3*person_size, Coordinate.StairsDown(self.current_floor).y2 - person_size]),
-                    np.array([Coordinate.StairsBetween(self.current_floor-1).x + 3*person_size, Coordinate.StairsUp(self.current_floor-1).y + person_size]),
-                    np.array([Coordinate.StairsUp(self.current_floor-1).x - person_size, Coordinate.StairsUp(self.current_floor-1).y + person_size])
+                    np.array([Coordinate.StairsDown(self.current_floor).x - 1, Coordinate.StairsDown(self.current_floor).y2]),
+                    np.array([Coordinate.StairsBetween(self.current_floor-1).x + 1, Coordinate.StairsDown(self.current_floor).y2]),
+                    np.array([Coordinate.StairsBetween(self.current_floor-1).x + 1, Coordinate.StairsUp(self.current_floor-1).y]),
+                    np.array([Coordinate.StairsUp(self.current_floor-1).x - 1, Coordinate.StairsUp(self.current_floor-1).y])
                 ]
                 self.current_floor -= 1
             else:

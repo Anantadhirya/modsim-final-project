@@ -22,7 +22,7 @@ def random_pos(room, margin = 0, side = ""):
         y = y2
     elif side == "d":
         y2 = y
-    return np.array([random_between(x, x2), random_between(y, y2)])
+    return np.array([random.randint(x, x2), random.randint(y, y2)])
 
 def normal(normal_params):
     mu = normal_params[0]

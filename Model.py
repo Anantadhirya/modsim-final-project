@@ -15,9 +15,9 @@ class Model:
 
         for _ in range(person_arriving):
             arrive_time = Utils.normal(arrive_params) * 60
-            pos = Utils.random_pos(Coordinate.Hall(0), person_size)
+            pos = Utils.random_pos(Coordinate.Hall(0), 0)
             target_floor = random.randint(1, floor_count-1)
-            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), person_size, "y")
+            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), 0, "y")
             self.arrivingPersons.append(PersonAgent(arrive_time, pos, 0, target_floor, target_pos))
         
         random.shuffle(classes_position)
@@ -28,8 +28,8 @@ class Model:
             for _ in range(round(class_person_count)):
                 person_time = class_finish_time + Utils.uniform(classes_empty_params) * 60
                 print(class_finish_time, person_time)
-                person_pos = Utils.random_pos(Coordinate.Hall(class_floor), person_size, class_room)
-                target_pos = Utils.random_pos(Coordinate.Hall(0), person_size, "d")
+                person_pos = Utils.random_pos(Coordinate.Hall(class_floor), 0, class_room)
+                target_pos = Utils.random_pos(Coordinate.Hall(0), 0, "d")
                 self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos))
 
         self.startTime = min([person.start_time for person in self.arrivingPersons])

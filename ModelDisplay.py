@@ -25,7 +25,7 @@ class ModelDisplay:
         self.rectangles = [(self.mapRectangle(rectangle[0]), rectangle[1]) for rectangle in self.rectangles]
     
     def addRectangle(self, pos: Coordinate, color):
-        self.rectangles.append(((pos.x, pos.y, pos.w, pos.h), color))
+        self.rectangles.append(((pos.x - 0.5, pos.y - 0.5, pos.w, pos.h), color))
 
     def initRectangles(self):
         self.rectangles = []
