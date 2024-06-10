@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 from Coordinate import Coordinate
 from Settings import *
@@ -8,6 +9,7 @@ class PersonAgent:
     def __init__(self, start_time, pos, current_floor, target_floor, target_floor_pos):
         self.start_time = start_time
         self.pos = pos
+        self.grid_pos = pos
         self.current_floor = current_floor
         self.target_floor = target_floor
         self.target_floor_pos = target_floor_pos
@@ -40,5 +42,12 @@ class PersonAgent:
                     self.finish_time = time
                     return
                 else: self.target_pos = [self.target_floor_pos]
-        self.pos = Utils.move(self.pos, self.target_pos[0], self.speed)
-        if Utils.equal_pos(self.pos, self.target_pos[0]): self.target_pos = self.target_pos[1:]
+        if Utils.equal_pos(self.pos, self.grid_pos):
+            possible_moves = [self.pos + np.array(d) for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]]
+            dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
+            best_dist = min(move[0] for move in dist_moves)
+            best_moves = [move[1] for move in dist_moves if move[0] == best_dist]
+            self.grid_pos = random.choice(best_moves)
+        self.pos = Utils.move(self.pos, self.grid_pos, self.speed)
+        if Utils.equal_pos(self.pos, self.target_pos[0]):
+            self.target_pos = self.target_pos[1:]
