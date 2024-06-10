@@ -9,6 +9,19 @@ class Coordinate:
         self.h = h
         self.x2 = x + w - 1
         self.y2 = y + h - 1
+    def inside(self, pos):
+        x, y = pos[0], pos[1]
+        return self.x <= x and x <= self.x2 and self.y <= y and y <= self.y2
+    @staticmethod
+    def inside_building(pos):
+        for floor in range(floor_count):
+            if Coordinate.LiftHall(floor).inside(pos): return True
+            if Coordinate.Hall(floor).inside(pos): return True
+            if Coordinate.StairsUp(floor).inside(pos): return True
+            if Coordinate.StairsDown(floor).inside(pos): return True
+        for floor in range(floor_count - 1):
+            if Coordinate.StairsBetween(floor).inside(pos): return True
+        return False
     @staticmethod
     def LiftHall(floor):
         return Coordinate(x=0.0, y=floor * (hall_height + gap), w=lift_hall_width, h=hall_height)

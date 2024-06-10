@@ -44,7 +44,7 @@ class PersonAgent:
                 else: self.target_pos = [self.target_floor_pos]
         if Utils.equal_pos(self.pos, self.grid_pos):
             possible_moves = [self.pos + np.array(d) for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]]
-            dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
+            dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves if Coordinate.inside_building(move)], key=lambda x: x[0])
             best_dist = min(move[0] for move in dist_moves)
             best_moves = [move[1] for move in dist_moves if move[0] == best_dist]
             self.grid_pos = random.choice(best_moves)
