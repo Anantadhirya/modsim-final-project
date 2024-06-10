@@ -14,6 +14,7 @@ class Model:
         self.arrivedPersons = []
         self.arrivingQueue = []
         self.grid = {}
+        self.gridLiftQueue = {}
 
         for _ in range(person_arriving):
             arrive_time = Utils.normal(arrive_params) * 60
@@ -76,7 +77,7 @@ class Model:
         self.arrivingQueue = tmp
         
         for person in self.persons:
-            person.step(self.time, self.grid)
+            person.step(self.time, self.grid, self.lifts, self.gridLiftQueue)
             if person.finish_time:
                 self.arrivedPersons.append(person)
                 self.grid[Utils.key(person.grid_pos)] = 0

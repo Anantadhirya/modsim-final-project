@@ -1,5 +1,6 @@
 from Settings import *
 from Coordinate import Coordinate
+import Utils
 
 import pygame
 import numpy as np
@@ -83,8 +84,12 @@ class ModelDisplay:
         for person in persons:
             # To debug stuck, collision, and movement
             # if person.target_pos:
-            #     pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(person.target_pos[0]), person_size*self.scale)
+            #     pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(Utils.move(person.pos, person.target_pos[0], person.speed)), person_size*self.scale)
             pygame.draw.circle(self.screen, (0, 0, 255), self.mapCoordinatePoint(person.pos), person_size*self.scale)
+        
+        # for person in persons:
+        #     if person.target_pos:
+        #         pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(person.target_pos[0]), person_size*self.scale)
         
         for lift in range(lift_count):
             pygame.draw.rect(self.screen, Color.light_gray, self.mapRectangle(self.toRectangle(Coordinate.Lift(lift, lifts[lift].y))))

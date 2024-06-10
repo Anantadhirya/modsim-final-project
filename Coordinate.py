@@ -16,12 +16,6 @@ class Coordinate:
     def Hall(floor):
         return Coordinate(x=lift_hall_width, y=floor * (hall_height + gap), w=hall_width, h=hall_height)
     @staticmethod
-    def LiftDoorUp(floor, lift):
-        return Coordinate(x=lift * (lift_door_gap + lift_door_width) + lift_door_gap, y=Coordinate.LiftHall(floor).y2 - lift_door_height + 1, w=lift_door_width, h=lift_door_height)
-    @staticmethod
-    def LiftDoorDown(floor, lift):
-        return Coordinate(x=lift * (lift_door_gap + lift_door_width) + lift_door_gap, y=Coordinate.LiftHall(floor).y, w=lift_door_width, h=lift_door_height)
-    @staticmethod
     def StairsUp(floor):
         return Coordinate(x=floor_width, y=Coordinate.Hall(floor).y2 - stairs_width + 1, w=stairs_length, h=stairs_width)
     @staticmethod
@@ -44,4 +38,9 @@ class Coordinate:
     @staticmethod
     def LiftDoorOutside(floor, lift):
         up = lift&1
-        return Coordinate.LiftDoorUp(floor, lift // 2) if up else Coordinate.LiftDoorDown(floor, lift // 2)
+        lift //= 2
+        return Coordinate(x=lift * (lift_door_gap + lift_door_width) + lift_door_gap, y=Coordinate.LiftHall(floor).y2 - lift_door_height + 1 if up else Coordinate.LiftHall(floor).y, w=lift_door_width, h=lift_door_height)
+    @staticmethod
+    def LiftDoorOutsideInt(floor, lift):
+        up = lift&1
+        return Coordinate(Coordinate.LiftDoorOutside(floor, lift).x, Coordinate.LiftHall(floor).y2 if up else Coordinate.LiftHall(floor).y, lift_door_width, 1)
