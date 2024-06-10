@@ -78,6 +78,9 @@ class ModelDisplay:
             pygame.draw.rect(self.screen, color, rectangle)
         
         for person in persons:
+            # To debug stuck, collision, and movement
+            # if person.target_pos:
+            #     pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(person.target_pos[0]), person_size*self.scale)
             pygame.draw.circle(self.screen, (0, 0, 255), self.mapCoordinatePoint(person.pos), person_size*self.scale)
         pygame.display.flip()
         pygame.time.Clock().tick(60)

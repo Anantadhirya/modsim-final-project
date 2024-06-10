@@ -8,8 +8,8 @@ from Settings import *
 def random_between(l, r):
     return random.random() * (r-l) + l
 
-def random_pos(room, margin = 0, side = ""):
-    x, x2, y, y2 = room.x + margin, room.x2 - margin, room.y + margin, room.y2 - margin
+def random_pos(room, margin = (0, 0, 0, 0), side = ""):
+    x, x2, y, y2 = room.x + margin[3], room.x2 - margin[1], room.y + margin[2], room.y2 - margin[0]
     if side == "y":
         y = y2 = random.choice([y, y2])
     elif side == "x":
@@ -47,5 +47,8 @@ def move(pos, target, speed):
     direction = normalize(target - pos)
     return target if norm(target - pos) < speed * time_step else pos + direction * speed * time_step
 
-def equal_pos(a, b):
-    return norm(a-b) < 0.001
+def equal_pos(a, b, tolerance = 0.001):
+    return norm(a-b) < tolerance + 0.001
+
+def key(pos):
+    return (pos[0], pos[1])

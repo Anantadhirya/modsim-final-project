@@ -26,4 +26,4 @@ stairs_length = 6
 # class_hall_width = 3
 # class_hall_height = 0.3
 
-classes_position = [pos for floor in range(3, floor_count) for pos in [(floor, "u"), (floor, "d"), (floor, "d")]]
+classes_position = [pos for floor in range(3, floor_count) for pos in [(floor, "d"), (floor, "d"), (floor, "d")]]
