@@ -49,28 +49,35 @@ class PersonAgent:
     
     def step(self, time, grid):
         if self.finish_time: return
+
+        # Set target
         if not self.target_pos:
-            if self.target_floor > self.current_floor:
-                if self.state == State.start:
-                    self.state = State.stairs_queue
-                    self.target_pos = Target.StairsUpQueue(self.current_floor)
-                elif self.state == State.stairs_up or self.state == State.stairs_queue:
-                    self.state = State.stairs_up
-                    self.target_pos = Target.StairsUpRoute(self.current_floor)
-                    self.current_floor += 1
-            elif self.target_floor < self.current_floor:
-                if self.state == State.start:
-                    self.state = State.stairs_queue
-                    self.target_pos = Target.StairsDownQueue(self.current_floor)
-                elif self.state == State.stairs_down or (self.state == State.stairs_queue and not grid.get(Utils.key([self.grid_pos[0]+2, self.grid_pos[1]+1]), 1) and not grid.get(Utils.key([self.grid_pos[0]+1, self.grid_pos[1]-1]), 1)):
-                    self.state = State.stairs_down
-                    self.target_pos = Target.StairsDownRoute(self.current_floor)
-                    self.current_floor -= 1
-            else:
+            if self.current_floor == self.target_floor:
                 if Utils.equal_pos(self.pos, self.target_floor_pos):
                     self.finish_time = time
                     return
                 else: self.target_pos = [self.target_floor_pos]
+            elif self.state == State.start:
+                self.state = State.stairs_queue
+                self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
+            elif self.state == State.stairs_queue:
+                if self.target_floor > self.current_floor:
+                    self.state = State.stairs_up
+                    self.target_pos = Target.StairsUpRoute(self.current_floor)
+                    self.current_floor += 1
+                else:
+                    if not grid.get(Utils.key([self.grid_pos[0]+2, self.grid_pos[1]+1]), 1) and not grid.get(Utils.key([self.grid_pos[0]+1, self.grid_pos[1]-1]), 1):
+                        self.state = State.stairs_down
+                        self.target_pos = Target.StairsDownRoute(self.current_floor)
+                        self.current_floor -= 1
+            elif self.state == State.stairs_up:
+                self.target_pos = Target.StairsUpRoute(self.current_floor)
+                self.current_floor += 1
+            elif self.state == State.stairs_down:
+                self.target_pos = Target.StairsDownRoute(self.current_floor)
+                self.current_floor -= 1
+
+        # Move to target
         if self.target_pos:
             if Utils.equal_pos(self.pos, self.grid_pos):
                 grid[Utils.key(self.grid_pos)] = 0
