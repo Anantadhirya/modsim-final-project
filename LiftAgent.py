@@ -21,7 +21,7 @@ class LiftAgent:
         self.grid = {Utils.key([i, j]): None for i in range(4) for j in range(4)}
     
     def step(self):
-        if self.grid[Utils.key([0, 1])]:
+        if self.grid[Utils.key([0, 1])] or self.grid[Utils.key([0, 2])]:
             possible_move_tos = [np.array([i, j]) for i in range(4) for j in range(4) if not self.grid[Utils.key([i, j])]]
             random.shuffle(possible_move_tos)
             possible_move_tos.sort(key=lambda pos: self.priority[pos[0]][pos[1]], reverse=True)
