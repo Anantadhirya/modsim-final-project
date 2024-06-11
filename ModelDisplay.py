@@ -1,6 +1,5 @@
 from Settings import *
 from Coordinate import Coordinate
-import Utils
 
 import pygame
 import numpy as np
@@ -37,9 +36,6 @@ class ModelDisplay:
         for floor in range(floor_count):
             self.addRectangle(Coordinate.LiftHall(floor), Color.wood)
             self.addRectangle(Coordinate.Hall(floor), Color.wood)
-
-            # for lift in range(lift_count):
-            #     self.addRectangle(Coordinate.LiftDoorOutside(floor, lift), Color.gray)
 
             # class_hall_bottom = patches.Rectangle((lift_hall_width + (hall_width - class_hall_height) / 2, floor * (hall_height + gap) - class_hall_height), class_hall_width, class_hall_height, linewidth=2, edgecolor='black', facecolor='none')
             # self.ax.add_patch(class_hall_bottom)
@@ -88,7 +84,6 @@ class ModelDisplay:
             for floor in range(floor_count):
                 pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorOutsideAnimated(floor, lifts[lift], time, "l"))))
                 pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorOutsideAnimated(floor, lifts[lift], time, "r"))))
-            # pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
         
         for person in persons:
             # To debug stuck, collision, and movement

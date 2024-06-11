@@ -37,20 +37,16 @@ class LiftAgent:
                     self.target[floor] = True
             if (time - self.last_time) > lift_stay_open_duration and np.any(self.target):
                 self.state = LiftState.closing
-                print(f"Lift {self.lift_number} is closing. {self.target}")
                 self.door_time = time
         elif self.state == LiftState.closing:
             if (time - self.door_time) > lift_door_transition_duration:
-                print(f"Lift {self.lift_number} is closed.")
                 self.state = LiftState.closed
             elif pressedLiftButton[self.floor][self.lift_number][self.direction_up]:
                 pressedLiftButton[self.floor][self.lift_number][self.direction_up] = False
                 self.state = LiftState.opening
-                print(f"Lift {self.lift_number} is re-opening.")
                 self.door_time = time - (lift_door_transition_duration - (time - self.door_time))
         elif self.state == LiftState.opening:
             if (time - self.door_time) > lift_door_transition_duration:
-                print(f"Lift {self.lift_number} is open.")
                 self.state = LiftState.open
         elif self.state == LiftState.closed:
             pass
