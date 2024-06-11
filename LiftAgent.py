@@ -7,7 +7,7 @@ import random
 
 class LiftAgent:
     priority = [
-        "1012",
+        "1004",
         "2123",
         "3234",
         "4345"
