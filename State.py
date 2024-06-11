@@ -13,3 +13,4 @@ class LiftState:
     opening = 1
     closed = 2
     closing = 3
+    moving = 4
