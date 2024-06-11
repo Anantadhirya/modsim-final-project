@@ -22,7 +22,7 @@ class Model:
             arrive_time = Utils.normal(arrive_params) * 60
             pos = Utils.random_pos(Coordinate.Hall(0), (0, 2, 0, 0), "u")
             target_floor = random.randint(1, floor_count-1)
-            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), (0, 2, 0, 0), "u")
+            target_pos = Utils.random_pos(Coordinate.Hall(target_floor), (0, 3, 0, 1), "u")
             self.arrivingPersons.append(PersonAgent(arrive_time, pos, 0, target_floor, target_pos))
         
         random.shuffle(classes_position)

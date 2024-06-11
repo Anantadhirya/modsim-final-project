@@ -35,6 +35,7 @@ class Target:
             "..xx..xx..",
             "...x...x..",
             "xxxxxxxxxx",
+            "xxxxxxxxxx",
             "...x...x..",
             "..xx..xx.."
         ]
@@ -44,7 +45,7 @@ class Target:
                 queue_pos = np.array([Coordinate.LiftHall(floor).x + x, Coordinate.LiftHall(floor).y + y])
                 if not grid[Utils.key(queue_pos)] and queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
                     if y == 0 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
-                    if y == 4 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
+                    if y == hall_height-1 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
                     possible_queues.append(queue_pos)
         # Heuristic
         def f(queue):
@@ -55,7 +56,7 @@ class Target:
                     Utils.norm(np.array([lift_door.x, lift_door.y]) - queue),
                     Utils.norm(np.array([lift_door.x+1, lift_door.y]) - queue)
                 )
-                dist_floor = abs(lifts[lift].floor - floor)
+                dist_floor = abs(lifts[lift].floor - floor) + (0 if lifts[lift].floor == floor else floor_count if (lifts[lift].floor < floor) != lifts[lift].direction_up else 0)
                 res.append((dist_pos + dist_floor, queue, lift))
             return res
         if not possible_queues:
@@ -73,8 +74,8 @@ class Target:
     @staticmethod
     def LiftExitRoute(pos, floor):
         return [
-            np.array([pos[0], Coordinate.LiftHall(floor).y + 2]),
-            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 2])
+            np.array([pos[0], Coordinate.LiftHall(floor).y + 3]),
+            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 3])
         ]
     @staticmethod
     def LiftDoor(floor, lift):
@@ -118,18 +119,19 @@ class PersonAgent:
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
                 pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
-                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not target_lift.grid[Utils.key([0, 1])] and not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()]):
+                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()]):
                     target_lift.person_count += 1
                     self.state = State.lift_entering
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
                     gridLiftQueue[Utils.key(self.grid_pos)] = 0
             elif self.state == State.lift_entering:
-                self.state = State.lift_inside_entering
-                grid[Utils.key(self.pos)] = None
-                self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
-                self.grid_pos = np.array([0, 1])
-                lifts[self.target_lift].grid[Utils.key([0, 1])] = self
-                lifts[self.target_lift].last_time = max(lifts[self.target_lift].last_time, time)
+                if not lifts[self.target_lift].grid[Utils.key([0, 1])]:
+                    self.state = State.lift_inside_entering
+                    grid[Utils.key(self.pos)] = None
+                    self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
+                    self.grid_pos = np.array([0, 1])
+                    lifts[self.target_lift].grid[Utils.key([0, 1])] = self
+                    lifts[self.target_lift].last_time = max(lifts[self.target_lift].last_time, time)
             elif self.state == State.stairs_queue:
                 if self.target_floor > self.current_floor:
                     self.state = State.stairs_up

@@ -16,7 +16,7 @@ lift_door_gap = 2
 
 
 hall_width = 5
-hall_height = 5
+hall_height = 6
 floor_width = lift_hall_width + hall_width
 
 stairs_width = 2

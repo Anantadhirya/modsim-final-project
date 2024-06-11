@@ -1,5 +1,6 @@
 from Settings import *
 from Coordinate import Coordinate
+import Utils
 
 import pygame
 import numpy as np

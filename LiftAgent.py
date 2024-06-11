@@ -99,8 +99,7 @@ class LiftAgent:
                 if possible_froms:
                     chosen_from = random.choice(possible_froms)
                     self.grid[Utils.key(chosen_from)].grid_pos = move_to
-                    self.grid[Utils.key(move_to)] = self.grid[Utils.key(chosen_from)]
-                    self.grid[Utils.key(chosen_from)] = None
+                    self.grid[Utils.key(move_to)], self.grid[Utils.key(chosen_from)] = self.grid[Utils.key(chosen_from)], self.grid[Utils.key(move_to)]
         
         # Lift exit
         if self.state == LiftState.open:
