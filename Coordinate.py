@@ -1,4 +1,5 @@
 from Settings import *
+from State import LiftState
 import numpy as np
 
 # Catatan: Semua koordinat dihitung dari kiri bawah
@@ -51,3 +52,19 @@ class Coordinate:
         row = row if not up else 3 - row
         coordinate = Coordinate.Lift(lift, y)
         return np.array([coordinate.x + col, coordinate.y + row])
+    @staticmethod
+    def LiftDoorInsideAnimated(lift, time, side):
+        close_percentage = 1 if lift.state == LiftState.closed else 0 if lift.state == LiftState.open else (time - lift.door_time) / lift_door_transition_duration if lift.state == LiftState.closing else 1 - (time - lift.door_time) / lift_door_transition_duration
+        l, r = 0.2, 0.55
+        close_percentage = (r-l) * close_percentage + l
+        coordinate = Coordinate.LiftDoorInside(lift.lift_number, lift.y)
+        width = coordinate.w * close_percentage
+        return Coordinate(coordinate.x if side == "l" else coordinate.x2 + 1 - width, coordinate.y, width, coordinate.h)
+    @staticmethod
+    def LiftDoorOutsideAnimated(floor, lift, time, side):
+        close_percentage = 1 if floor != lift.floor else 1 if lift.state == LiftState.closed else 0 if lift.state == LiftState.open else (time - lift.door_time) / lift_door_transition_duration if lift.state == LiftState.closing else 1 - (time - lift.door_time) / lift_door_transition_duration
+        l, r = 0.2, 0.55
+        close_percentage = (r-l) * close_percentage + l
+        coordinate = Coordinate.LiftDoorOutside(floor, lift.lift_number)
+        width = coordinate.w * close_percentage
+        return Coordinate(coordinate.x if side == "l" else coordinate.x2 + 1 - width, coordinate.y, width, coordinate.h)

@@ -93,7 +93,7 @@ class PersonAgent:
         # To debug stuck
         # self.stuck = 0
     
-    def step(self, time, grid, lifts, gridLiftQueue):
+    def step(self, time, grid, lifts, gridLiftQueue, pressedLiftButton):
         if self.finish_time: return
 
         # Set target
@@ -104,11 +104,14 @@ class PersonAgent:
                     return
                 else: self.target_pos = [self.target_floor_pos]
             elif self.state == State.start:
-                self.state = State.lift_queue
+                self.state = State.lift_press_button
                 self.target_pos, self.target_lift = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
                 if not self.target_pos:
                     self.state = State.stairs_queue
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
+            elif self.state == State.lift_press_button:
+                self.state = State.lift_queue
+                pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
                 if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not target_lift.grid[Utils.key([0, 1])]:
@@ -122,6 +125,7 @@ class PersonAgent:
                 self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
                 self.grid_pos = np.array([0, 1])
                 lifts[self.target_lift].grid[Utils.key([0, 1])] = self
+                lifts[self.target_lift].last_time = max(lifts[self.target_lift].last_time, time)
             elif self.state == State.stairs_queue:
                 if self.target_floor > self.current_floor:
                     self.state = State.stairs_up

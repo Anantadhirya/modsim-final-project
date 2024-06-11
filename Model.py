@@ -5,6 +5,7 @@ from Coordinate import Coordinate
 from Settings import *
 import Utils
 import random
+import numpy as np
 
 class Model:
     def __init__(self, person_arriving, arrive_params, classes_finished, classes_person_params, classes_finish_params, classes_empty_params, display = False):
@@ -15,6 +16,7 @@ class Model:
         self.arrivingQueue = []
         self.grid = {}
         self.gridLiftQueue = {}
+        self.pressedLiftButton = [[np.array([False, False]) for _ in range(lift_count)] for _ in range(floor_count)]
 
         for _ in range(person_arriving):
             arrive_time = Utils.normal(arrive_params) * 60
@@ -38,7 +40,7 @@ class Model:
         self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)
 
         # Initialize Lifts
-        self.lifts = [LiftAgent(i) for i in range(lift_count)]
+        self.lifts = [LiftAgent(self.startTime, i) for i in range(lift_count)]
 
         self.init_building_grid()
 
@@ -61,7 +63,7 @@ class Model:
 
     def step(self):
         self.time += time_step
-        print(f"Time: {(self.time/60):.2f} menit")
+        # print(f"Time: {(self.time/60):.2f} menit")
 
         while self.arrivingPersons and self.arrivingPersons[-1].start_time <= self.time:
             self.arrivingQueue.append(self.arrivingPersons[-1])
@@ -77,13 +79,13 @@ class Model:
         self.arrivingQueue = tmp
         
         for person in self.persons:
-            person.step(self.time, self.grid, self.lifts, self.gridLiftQueue)
+            person.step(self.time, self.grid, self.lifts, self.gridLiftQueue, self.pressedLiftButton)
             if person.finish_time:
                 self.arrivedPersons.append(person)
                 self.grid[Utils.key(person.grid_pos)] = None
         
         for lift in self.lifts:
-            lift.step()
+            lift.step(self.time, self.pressedLiftButton)
 
         self.persons = [person for person in self.persons if not person.finish_time]
 
@@ -92,4 +94,4 @@ class Model:
         while True:
             self.step()
             if self.display:
-                self.display.redraw(self.persons, self.lifts)
+                self.display.redraw(self.persons, self.lifts, self.time)

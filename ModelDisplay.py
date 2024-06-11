@@ -38,8 +38,8 @@ class ModelDisplay:
             self.addRectangle(Coordinate.LiftHall(floor), Color.wood)
             self.addRectangle(Coordinate.Hall(floor), Color.wood)
 
-            for lift in range(lift_count):
-                self.addRectangle(Coordinate.LiftDoorOutside(floor, lift), Color.gray)
+            # for lift in range(lift_count):
+            #     self.addRectangle(Coordinate.LiftDoorOutside(floor, lift), Color.gray)
 
             # class_hall_bottom = patches.Rectangle((lift_hall_width + (hall_width - class_hall_height) / 2, floor * (hall_height + gap) - class_hall_height), class_hall_width, class_hall_height, linewidth=2, edgecolor='black', facecolor='none')
             # self.ax.add_patch(class_hall_bottom)
@@ -69,7 +69,7 @@ class ModelDisplay:
     def mapCoordinatePoint(self, pos):
         return np.array([pos[0] * self.scale + self.offset[0], self.screen.get_height() - (pos[1] * self.scale + self.offset[1])])
 
-    def redraw(self, persons, lifts):
+    def redraw(self, persons, lifts, time):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -83,7 +83,12 @@ class ModelDisplay:
         
         for lift in range(lift_count):
             pygame.draw.rect(self.screen, Color.light_gray, self.mapRectangle(self.toRectangle(Coordinate.Lift(lift, lifts[lift].y))))
-            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
+            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInsideAnimated(lifts[lift], time, "l"))))
+            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInsideAnimated(lifts[lift], time, "r"))))
+            for floor in range(floor_count):
+                pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorOutsideAnimated(floor, lifts[lift], time, "l"))))
+                pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorOutsideAnimated(floor, lifts[lift], time, "r"))))
+            # pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
         
         for person in persons:
             # To debug stuck, collision, and movement

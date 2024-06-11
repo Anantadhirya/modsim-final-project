@@ -1,13 +1,15 @@
 class State:
     start = 0
-    lift_queue = 1
-    lift_entering = 2
-    lift_inside = 3
-    stairs_queue = 4
-    stairs_up = 5
-    stairs_down = 6
+    lift_press_button = 1
+    lift_queue = 2
+    lift_entering = 3
+    lift_inside = 4
+    stairs_queue = 5
+    stairs_up = 6
+    stairs_down = 7
 
 class LiftState:
     open = 0
-    up = 1
-    down = 2
+    opening = 1
+    closed = 2
+    closing = 3
