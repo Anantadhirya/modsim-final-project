@@ -140,8 +140,7 @@ class PersonAgent:
         if self.target_pos:
             if Utils.equal_pos(self.pos, self.grid_pos):
                 grid[Utils.key(self.grid_pos)] = None
-                moves = [self.pos + np.array(d) for d in [[1, 0], [-1, 0], [0, 1], [0, -1], [0, 0]]]
-                possible_moves = [move for move in moves if not grid.get(Utils.key(move), 1)]
+                possible_moves = [move for move in Utils.adj(self.grid_pos, True) if not grid.get(Utils.key(move), 1)]
                 dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
                 best_dist = min(move[0] for move in dist_moves)
                 best_moves = [move[1] for move in dist_moves if move[0] == best_dist]

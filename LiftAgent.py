@@ -26,8 +26,7 @@ class LiftAgent:
             random.shuffle(possible_move_tos)
             possible_move_tos.sort(key=lambda pos: self.priority[pos[0]][pos[1]], reverse=True)
             for move_to in possible_move_tos:
-                move_froms = [move_to + np.array(d) for d in [[1, 0], [-1, 0], [0, 1], [0, -1]]]
-                possible_froms = [move_from for move_from in move_froms if self.grid.get(Utils.key(move_from), None) and self.priority[move_from[0]][move_from[1]] < self.priority[move_to[0]][move_to[1]]]
+                possible_froms = [move_from for move_from in Utils.adj(move_to) if self.grid.get(Utils.key(move_from), None) and self.priority[move_from[0]][move_from[1]] < self.priority[move_to[0]][move_to[1]]]
                 if possible_froms:
                     chosen_from = random.choice(possible_froms)
                     self.grid[Utils.key(chosen_from)].grid_pos = move_to

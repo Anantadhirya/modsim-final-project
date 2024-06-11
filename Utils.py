@@ -52,3 +52,8 @@ def equal_pos(a, b, tolerance = 0.001):
 
 def key(pos):
     return (pos[0], pos[1])
+
+def adj(pos, includeCenter = False):
+    directions = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+    if includeCenter: directions.append([0, 0])
+    return [pos + np.array(direction) for direction in directions]
