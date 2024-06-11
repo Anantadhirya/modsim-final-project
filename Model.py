@@ -85,7 +85,7 @@ class Model:
                 self.grid[Utils.key(person.grid_pos)] = None
         
         for lift in self.lifts:
-            lift.step(self.time, self.pressedLiftButton)
+            lift.step(self.time, self.pressedLiftButton, self.grid)
 
         self.persons = [person for person in self.persons if not person.finish_time]
 

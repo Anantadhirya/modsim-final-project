@@ -71,6 +71,12 @@ class Target:
             chosen_queue[1]
         ], chosen_queue[2]
     @staticmethod
+    def LiftExitRoute(pos, floor):
+        return [
+            np.array([pos[0], Coordinate.LiftHall(floor).y + 2]),
+            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 2])
+        ]
+    @staticmethod
     def LiftDoor(floor, lift):
         coordinate = Coordinate.LiftDoorOutsideInt(floor, lift)
         return [np.array([coordinate.x, coordinate.y])]
@@ -104,23 +110,21 @@ class PersonAgent:
                     return
                 else: self.target_pos = [self.target_floor_pos]
             elif self.state == State.start:
-                self.state = State.lift_press_button
+                self.state = State.lift_queue
                 self.target_pos, self.target_lift = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
                 if not self.target_pos:
                     self.state = State.stairs_queue
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
-            elif self.state == State.lift_press_button:
-                self.state = State.lift_queue
-                pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
-                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not target_lift.grid[Utils.key([0, 1])]:
+                pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
+                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not target_lift.grid[Utils.key([0, 1])] and not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()]):
                     target_lift.person_count += 1
                     self.state = State.lift_entering
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
                     gridLiftQueue[Utils.key(self.grid_pos)] = 0
             elif self.state == State.lift_entering:
-                self.state = State.lift_inside
+                self.state = State.lift_inside_entering
                 grid[Utils.key(self.pos)] = None
                 self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
                 self.grid_pos = np.array([0, 1])
