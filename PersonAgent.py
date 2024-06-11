@@ -42,7 +42,7 @@ class Target:
         for y in range(hall_height):
             for x in range(lift_hall_width):
                 queue_pos = np.array([Coordinate.LiftHall(floor).x + x, Coordinate.LiftHall(floor).y + y])
-                if not grid.get(Utils.key(queue_pos), 1) and queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
+                if not grid[Utils.key(queue_pos)] and queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
                     possible_queues.append(queue_pos)
         # Heuristic
         def f(queue):
@@ -115,7 +115,7 @@ class PersonAgent:
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
             elif self.state == State.lift_entering:
                 self.state = State.lift_inside
-                grid[Utils.key(self.pos)] = 0
+                grid[Utils.key(self.pos)] = None
                 self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
                 self.grid_pos = np.array([0, 1])
                 lifts[self.target_lift].grid[Utils.key([0, 1])] = self
@@ -125,7 +125,7 @@ class PersonAgent:
                     self.target_pos = Target.StairsUpRoute(self.current_floor)
                     self.current_floor += 1
                 else:
-                    if not grid.get(Utils.key([self.grid_pos[0]+2, self.grid_pos[1]+1]), 1) and not grid.get(Utils.key([self.grid_pos[0]+1, self.grid_pos[1]-1]), 1):
+                    if not grid[Utils.key([self.grid_pos[0]+2, self.grid_pos[1]+1])] and not grid[Utils.key([self.grid_pos[0]+1, self.grid_pos[1]-1])]:
                         self.state = State.stairs_down
                         self.target_pos = Target.StairsDownRoute(self.current_floor)
                         self.current_floor -= 1
@@ -139,7 +139,7 @@ class PersonAgent:
         # Move to target
         if self.target_pos:
             if Utils.equal_pos(self.pos, self.grid_pos):
-                grid[Utils.key(self.grid_pos)] = 0
+                grid[Utils.key(self.grid_pos)] = None
                 moves = [self.pos + np.array(d) for d in [[1, 0], [-1, 0], [0, 1], [0, -1], [0, 0]]]
                 possible_moves = [move for move in moves if not grid.get(Utils.key(move), 1)]
                 dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
@@ -154,7 +154,7 @@ class PersonAgent:
                 # if self.stuck > 20:
                 #     print(self.pos, self.target_pos[0], dist_moves)
                 #     print([(move, grid.get(Utils.key(move), 1)) for move in moves])
-                grid[Utils.key(self.grid_pos)] = 1
+                grid[Utils.key(self.grid_pos)] = self
             self.pos = Utils.move(self.pos, self.grid_pos, self.speed)
             if Utils.equal_pos(self.pos, self.target_pos[0]):
                 self.target_pos = self.target_pos[1:]

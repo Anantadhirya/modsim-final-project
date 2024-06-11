@@ -48,7 +48,7 @@ class Model:
     def init_room_grid(self, room):
         for x in range(room.x, room.x + room.w):
             for y in range(room.y, room.y + room.h):
-                self.grid[Utils.key([x, y])] = 0
+                self.grid[Utils.key([x, y])] = None
 
     def init_building_grid(self):
         for floor in range(floor_count):
@@ -69,10 +69,10 @@ class Model:
         
         tmp = []
         for person in self.arrivingQueue:
-            if self.grid.get(Utils.key(person.pos), 1):
+            if self.grid[Utils.key(person.pos)]:
                 tmp.append(person)
             else:
-                self.grid[Utils.key(person.pos)] = 1
+                self.grid[Utils.key(person.pos)] = person
                 self.persons.append(person)
         self.arrivingQueue = tmp
         
@@ -80,7 +80,7 @@ class Model:
             person.step(self.time, self.grid, self.lifts, self.gridLiftQueue)
             if person.finish_time:
                 self.arrivedPersons.append(person)
-                self.grid[Utils.key(person.grid_pos)] = 0
+                self.grid[Utils.key(person.grid_pos)] = None
         
         for lift in self.lifts:
             lift.step()
