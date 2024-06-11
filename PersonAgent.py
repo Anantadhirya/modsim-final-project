@@ -43,6 +43,8 @@ class Target:
             for x in range(lift_hall_width):
                 queue_pos = np.array([Coordinate.LiftHall(floor).x + x, Coordinate.LiftHall(floor).y + y])
                 if not grid[Utils.key(queue_pos)] and queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
+                    if y == 0 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
+                    if y == 4 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
                     possible_queues.append(queue_pos)
         # Heuristic
         def f(queue):
@@ -113,6 +115,7 @@ class PersonAgent:
                     target_lift.person_count += 1
                     self.state = State.lift_entering
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
+                    gridLiftQueue[Utils.key(self.grid_pos)] = 0
             elif self.state == State.lift_entering:
                 self.state = State.lift_inside
                 grid[Utils.key(self.pos)] = None
