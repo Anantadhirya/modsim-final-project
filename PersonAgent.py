@@ -3,7 +3,7 @@ import random
 
 from Coordinate import Coordinate
 from Settings import *
-from State import State
+from State import State, LiftState
 import Utils
 
 class Target:
@@ -54,20 +54,24 @@ class Target:
                     Utils.norm(np.array([lift_door.x+1, lift_door.y]) - queue)
                 )
                 dist_floor = abs(lifts[lift].floor - floor)
-                res.append(dist_pos + dist_floor)
-            return min(res)
+                res.append((dist_pos + dist_floor, queue, lift))
+            return res
         if not possible_queues:
-            return []
-        dist_queues = sorted([(f(queue), queue) for queue in possible_queues], key=lambda x: x[0])
+            return [], None
+        dist_queues = sorted([dist_queue for queue in possible_queues for dist_queue in f(queue)], key=lambda x: x[0])
         best_dist = min(queue[0] for queue in dist_queues)
-        best_queues = [queue[1] for queue in dist_queues if queue[0] == best_dist]
+        best_queues = [queue for queue in dist_queues if queue[0] == best_dist]
         chosen_queue = random.choice(best_queues)
-        gridLiftQueue[Utils.key(chosen_queue)] = 1
+        gridLiftQueue[Utils.key(chosen_queue[1])] = 1
         return [
             np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 2]),
-            np.array([chosen_queue[0], Coordinate.LiftHall(floor).y + 2]),
-            chosen_queue
-        ]
+            np.array([chosen_queue[1][0], Coordinate.LiftHall(floor).y + 2]),
+            chosen_queue[1]
+        ], chosen_queue[2]
+    @staticmethod
+    def LiftDoor(floor, lift):
+        coordinate = Coordinate.LiftDoorOutsideInt(floor, lift)
+        return [np.array([coordinate.x, coordinate.y])]
 
 class PersonAgent:
     def __init__(self, start_time, pos, current_floor, target_floor, target_floor_pos):
@@ -82,6 +86,7 @@ class PersonAgent:
         self.finish_time = None
         self.target_pos = []
         self.state = State.start
+        self.target_lift = None
 
         # To debug stuck
         # self.stuck = 0
@@ -98,10 +103,22 @@ class PersonAgent:
                 else: self.target_pos = [self.target_floor_pos]
             elif self.state == State.start:
                 self.state = State.lift_queue
-                self.target_pos = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
+                self.target_pos, self.target_lift = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
                 if not self.target_pos:
                     self.state = State.stairs_queue
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
+            elif self.state == State.lift_queue:
+                target_lift = lifts[self.target_lift]
+                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not target_lift.grid[Utils.key([0, 1])]:
+                    target_lift.person_count += 1
+                    self.state = State.lift_entering
+                    self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
+            elif self.state == State.lift_entering:
+                self.state = State.lift_inside
+                grid[Utils.key(self.pos)] = 0
+                self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
+                self.grid_pos = np.array([0, 1])
+                lifts[self.target_lift].grid[Utils.key([0, 1])] = self
             elif self.state == State.stairs_queue:
                 if self.target_floor > self.current_floor:
                     self.state = State.stairs_up

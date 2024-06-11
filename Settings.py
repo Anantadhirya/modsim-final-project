@@ -27,6 +27,8 @@ lift_gap_x = 0.4
 lift_door_inside_gap = 1
 # lift_door_inside_gap = (lift_size - lift_door_width) / 2
 
+lift_max_person = 14
+
 # class_hall_width = 3
 # class_hall_height = 0.3
 

@@ -81,6 +81,10 @@ class ModelDisplay:
         for rectangle, color in self.rectangles:
             pygame.draw.rect(self.screen, color, rectangle)
         
+        for lift in range(lift_count):
+            pygame.draw.rect(self.screen, Color.light_gray, self.mapRectangle(self.toRectangle(Coordinate.Lift(lift, lifts[lift].y))))
+            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
+        
         for person in persons:
             # To debug stuck, collision, and movement
             # if person.target_pos:
@@ -90,10 +94,6 @@ class ModelDisplay:
         # for person in persons:
         #     if person.target_pos:
         #         pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(person.target_pos[0]), person_size*self.scale)
-        
-        for lift in range(lift_count):
-            pygame.draw.rect(self.screen, Color.light_gray, self.mapRectangle(self.toRectangle(Coordinate.Lift(lift, lifts[lift].y))))
-            pygame.draw.rect(self.screen, Color.gray, self.mapRectangle(self.toRectangle(Coordinate.LiftDoorInside(lift, lifts[lift].y))))
 
         pygame.display.flip()
         pygame.time.Clock().tick(60)

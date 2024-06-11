@@ -38,7 +38,7 @@ class Model:
         self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)
 
         # Initialize Lifts
-        self.lifts = [LiftAgent() for _ in range(lift_count)]
+        self.lifts = [LiftAgent(i) for i in range(lift_count)]
 
         self.init_building_grid()
 
@@ -81,6 +81,9 @@ class Model:
             if person.finish_time:
                 self.arrivedPersons.append(person)
                 self.grid[Utils.key(person.grid_pos)] = 0
+        
+        for lift in self.lifts:
+            lift.step()
 
         self.persons = [person for person in self.persons if not person.finish_time]
 

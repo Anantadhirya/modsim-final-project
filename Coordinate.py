@@ -1,4 +1,5 @@
 from Settings import *
+import numpy as np
 
 # Catatan: Semua koordinat dihitung dari kiri bawah
 class Coordinate:
@@ -44,3 +45,9 @@ class Coordinate:
     def LiftDoorOutsideInt(floor, lift):
         up = lift&1
         return Coordinate(Coordinate.LiftDoorOutside(floor, lift).x, Coordinate.LiftHall(floor).y2 if up else Coordinate.LiftHall(floor).y, lift_door_width, 1)
+    @staticmethod
+    def LiftGrid(lift, y, row, col):
+        up = ~lift&1
+        row = row if not up else 3 - row
+        coordinate = Coordinate.Lift(lift, y)
+        return np.array([coordinate.x + col, coordinate.y + row])
