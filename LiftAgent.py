@@ -64,18 +64,6 @@ class LiftAgent:
             if (time - self.last_time) > lift_door_transition_duration:
                 self.state = LiftState.open
                 self.last_time = time
-        elif self.state == LiftState.closed:
-            if self.direction_up and not np.any([self.target[floor] for floor in range(self.floor+1, floor_count)]):
-                self.direction_up = 0
-            elif not self.direction_up and not np.any([self.target[floor] for floor in range(0, self.floor)]):
-                self.direction_up = 1
-            if (pressedLiftButton[self.floor][self.lift_number][self.direction_up] and self.person_count < lift_max_person) or np.any([person and person.target_floor == self.floor for person in self.grid.values()]) or self.target[self.floor]:
-                pressedLiftButton[self.floor][self.lift_number][self.direction_up] = False
-                self.state = LiftState.opening
-                self.last_time = time
-            else:
-                self.state = LiftState.moving
-                self.floor += 1 if self.direction_up else -1
         elif self.state == LiftState.moving:
             if self.y == Coordinate.LiftHall(self.floor).y:
                 self.state = LiftState.closed
@@ -88,6 +76,18 @@ class LiftAgent:
                 for person in self.grid.values():
                     if not person: continue
                     person.pos = Coordinate.LiftGrid(self.lift_number, self.y, person.grid_pos[0], person.grid_pos[1])
+        if self.state == LiftState.closed:
+            if self.direction_up and not np.any([self.target[floor] for floor in range(self.floor+1, floor_count)]):
+                self.direction_up = 0
+            elif not self.direction_up and not np.any([self.target[floor] for floor in range(0, self.floor)]):
+                self.direction_up = 1
+            if (pressedLiftButton[self.floor][self.lift_number][self.direction_up] and self.person_count < lift_max_person) or np.any([person and person.target_floor == self.floor for person in self.grid.values()]) or self.target[self.floor]:
+                pressedLiftButton[self.floor][self.lift_number][self.direction_up] = False
+                self.state = LiftState.opening
+                self.last_time = time
+            else:
+                self.state = LiftState.moving
+                self.floor += 1 if self.direction_up else -1
 
         # Lift entrance
         if np.any([self.grid[Utils.key(pos)] and self.grid[Utils.key(pos)].state == State.lift_inside_entering for pos in [[0, 1], [0, 2]]]):
