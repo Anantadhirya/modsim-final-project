@@ -61,3 +61,10 @@ def adj(pos, includeCenter = False):
 def inside(pos, x_range, y_range):
     """Note: inclusive inside (x_range[0] <= pos[0] and pos[0] <= x_range[1] and y_range[0] <= pos[1] and pos[1] <= y_range[1])"""
     return x_range[0] <= pos[0] and pos[0] <= x_range[1] and y_range[0] <= pos[1] and pos[1] <= y_range[1]
+
+# String Utils
+def time_string(time_in_seconds):
+    minutes = time_in_seconds // 60
+    seconds = time_in_seconds % 60
+    seconds_string = f"0{seconds:.2f}" if seconds < 10 else f"{seconds:.2f}"
+    return f"{int(minutes)}:{seconds_string}"

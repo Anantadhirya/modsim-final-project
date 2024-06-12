@@ -108,7 +108,7 @@ class ModelDisplay:
         #     if gridLiftQueue[pos]:
         #         pygame.draw.circle(self.screen, (0, 255, 0), self.mapCoordinatePoint(pos), person_size*self.scale*0.7)
         
-        self.label = self.font.render(f"Time {int(time//60)}:{(time%60):.0f}", True, Color.black)
+        self.label = self.font.render(Utils.time_string(time), True, Color.black)
         self.label_rect = self.label.get_rect()
         self.label_rect.center = (self.screen.get_width()/2, self.screen.get_height() - 1.7 * self.scale)
         self.screen.blit(self.label, self.label_rect)
