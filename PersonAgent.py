@@ -140,7 +140,7 @@ class PersonAgent:
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
-                pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
+                pressedLiftButton[self.current_floor][self.target_lift][1 if self.target_floor > self.current_floor else 0] = True
                 # Problem: kalau yang di belakang antrian masuk mau masuk duluan
                 door_coordinate = Coordinate.LiftDoorOutsideInt(self.current_floor, self.target_lift)
                 door_pos = np.array([door_coordinate.x, door_coordinate.y])
@@ -149,8 +149,8 @@ class PersonAgent:
                 condition_lift_open = target_lift.floor == self.current_floor and target_lift.state == LiftState.open
                 condition_lift_not_full = target_lift.person_count < lift_max_person
                 condition_lift_no_leaving = not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()])
-                print(self.pos, condition_nearest_to_door, condition_lift_open, condition_lift_not_full, condition_lift_no_leaving)
-                if condition_nearest_to_door and condition_lift_open and condition_lift_not_full and condition_lift_no_leaving:
+                condition_lift_direction = (self.target_floor > self.current_floor) == target_lift.direction_up
+                if condition_nearest_to_door and condition_lift_open and condition_lift_not_full and condition_lift_no_leaving and condition_lift_direction:
                     target_lift.person_count += 1
                     self.state = State.lift_entering
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)

@@ -33,7 +33,7 @@ class Model:
             for _ in range(round(class_person_count)):
                 person_time = class_finish_time + Utils.uniform(classes_empty_params) * 60
                 person_pos = Utils.random_pos(Coordinate.Hall(class_floor), (0, 2, 0, 0), class_room)
-                target_pos = Utils.random_pos(Coordinate.Hall(0), side="d")
+                target_pos = Utils.random_pos(Coordinate.Hall(0), (0, 3, 0, 1), side="d")
                 self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos))
 
         self.startTime = min([person.start_time for person in self.arrivingPersons])

@@ -118,9 +118,10 @@ class LiftAgent:
                     other_person.grid_pos, person.grid_pos = person.grid_pos, other_person.grid_pos
                     self.grid[Utils.key(other_person.grid_pos)], self.grid[Utils.key(person.grid_pos)] = self.grid[Utils.key(person.grid_pos)], self.grid[Utils.key(other_person.grid_pos)]
             person = self.grid[Utils.key([0, 2])]
-            if person and person.state == State.lift_inside_leaving:
-                coordinate = Coordinate.LiftDoorOutsideInt(self.floor, self.lift_number)
-                person.pos = person.grid_pos = np.array([coordinate.x, coordinate.y])
+            coordinate = Coordinate.LiftDoorOutsideInt(self.floor, self.lift_number)
+            door_pos = np.array([coordinate.x2, coordinate.y])
+            if person and person.state == State.lift_inside_leaving and not grid[Utils.key(door_pos)]:
+                person.pos = person.grid_pos = door_pos
                 person.state = State.lift_leaving
                 person.target_pos = Target.LiftExitRoute(person.grid_pos, self.floor)
                 person.current_floor = self.floor
