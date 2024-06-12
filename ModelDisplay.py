@@ -16,6 +16,7 @@ class Color:
     red = (255, 0, 0)
     greed = (0, 255, 0)
     blue = (0, 0, 255)
+    black = (0, 0, 0)
 
 class ModelDisplay:
     def __init__(self):
@@ -28,6 +29,7 @@ class ModelDisplay:
     def initDisplay(self):
         self.initRectangles()
         self.initBounds()
+        self.font = pygame.font.Font(None, round(2.5 * self.scale))
         self.rectangles = [(self.mapRectangle(rectangle[0]), rectangle[1]) for rectangle in self.rectangles]
 
     def toRectangle(self, pos: Coordinate):
@@ -105,6 +107,11 @@ class ModelDisplay:
         # for pos in gridLiftQueue:
         #     if gridLiftQueue[pos]:
         #         pygame.draw.circle(self.screen, (0, 255, 0), self.mapCoordinatePoint(pos), person_size*self.scale*0.7)
+        
+        self.label = self.font.render(f"Time: {(time/60):.2f} minute", True, Color.black)
+        self.label_rect = self.label.get_rect()
+        self.label_rect.center = (self.screen.get_width()/2, self.screen.get_height() - 1.7 * self.scale)
+        self.screen.blit(self.label, self.label_rect)
 
         pygame.display.flip()
         pygame.time.Clock().tick(60)
