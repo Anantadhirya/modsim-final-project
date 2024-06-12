@@ -118,6 +118,10 @@ class PersonAgent:
         self.target_lift = None
 
         self.person_type = person_type
+        self.start_floor = current_floor
+        self.lift_wait_start_time = None
+        self.lift_wait_finish_time = None
+        self.use_lift = None
 
         # To debug stuck
         # self.stuck = 0
@@ -138,12 +142,15 @@ class PersonAgent:
                 else: self.target_pos = [self.target_floor_pos]
             elif self.state == State.start:
                 self.state = State.lift_queue
+                self.lift_wait_start_time = time
+                self.use_lift = 1
                 self.target_pos = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
                 if self.target_pos:
                     best_lift = min((Utils.norm(self.target_pos[-1] - Target.LiftDoor(self.current_floor, i)[0]), i) for i in range(lift_count))
                     self.target_lift = best_lift[1]
                 else:
                     self.state = State.stairs_queue
+                    self.use_lift = 0
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
@@ -171,6 +178,7 @@ class PersonAgent:
             elif self.state == State.lift_entering:
                 if not lifts[self.target_lift].grid[Utils.key([0, 1])]:
                     self.state = State.lift_inside_entering
+                    self.lift_wait_finish_time = time
                     grid[Utils.key(self.pos)] = None
                     self.pos = Coordinate.LiftGrid(self.target_lift, lifts[self.target_lift].y, 0, 1)
                     self.grid_pos = np.array([0, 1])

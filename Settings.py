@@ -35,6 +35,8 @@ lift_max_person = 14
 lift_door_transition_duration = 1 # door open and close duration
 lift_stay_open_duration = 1 # how long a lift stays open from the last time a person entered or exit the lift
 
+time_before_display_close = 60
+
 # class_hall_width = 3
 # class_hall_height = 0.3
 

@@ -4,6 +4,7 @@ from ModelDisplay import ModelDisplay
 from Coordinate import Coordinate
 from Settings import *
 from State import PersonType
+from Insight import Insight
 
 import Utils
 import random
@@ -19,6 +20,8 @@ class Model:
         self.grid = {}
         self.gridLiftQueue = {}
         self.pressedLiftButton = [[np.array([False, False]) for _ in range(lift_count)] for _ in range(floor_count)]
+        self.model_finish = None
+        self.insight = Insight()
 
         for _ in range(person_arriving):
             arrive_time = Utils.normal(arrive_params) * 60
@@ -67,7 +70,6 @@ class Model:
     def step(self):
         self.time += time_step
         # print(f"Time: {(self.time/60):.2f} menit")
-
         while self.arrivingPersons and self.arrivingPersons[-1].start_time <= self.time:
             self.arrivingQueue.append(self.arrivingPersons[-1])
             self.arrivingPersons.pop()
@@ -96,5 +98,19 @@ class Model:
         self.time = self.startTime
         while True:
             self.step()
+
+            if not self.model_finish and not self.arrivingPersons and not self.persons:
+                self.model_finish = self.time
+            if self.model_finish and (self.time - self.model_finish) > time_before_display_close:
+                break
+
             if self.display:
                 self.display.redraw(self.persons, self.lifts, self.time, self.gridLiftQueue)
+
+        # After simulation finish
+        for person in self.arrivedPersons:
+            self.insight.person_total_time[person.use_lift][person.start_floor] += (person.finish_time - person.start_time)
+            self.insight.person_count[person.use_lift][person.start_floor] += 1
+            if person.use_lift:
+                self.insight.list_lift_wait_time.append(person.lift_wait_finish_time - person.lift_wait_start_time)
+        self.insight.display()
