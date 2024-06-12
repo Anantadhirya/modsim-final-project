@@ -1,5 +1,6 @@
 from Settings import *
 from Coordinate import Coordinate
+from State import PersonType
 import Utils
 
 import pygame
@@ -12,6 +13,9 @@ class Color:
     gray = (128, 128, 128)
     light_gray = (160, 160, 160)
     light_gray_bg = (211, 211, 211)
+    red = (255, 0, 0)
+    greed = (0, 255, 0)
+    blue = (0, 0, 255)
 
 class ModelDisplay:
     def __init__(self):
@@ -93,7 +97,7 @@ class ModelDisplay:
             # To debug stuck, collision, and movement
             # if person.target_pos:
             #     pygame.draw.circle(self.screen, (255, 0, 0), self.mapCoordinatePoint(Utils.move(person.pos, person.target_pos[0], person.speed)), person_size*self.scale)
-            pygame.draw.circle(self.screen, (0, 0, 255), self.mapCoordinatePoint(person.pos), person_size*self.scale)
+            pygame.draw.circle(self.screen, Color.blue if person.person_type == PersonType.arriving else Color.red, self.mapCoordinatePoint(person.pos), person_size*self.scale)
         
         # for person in persons:
         #     if person.target_pos:

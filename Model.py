@@ -3,6 +3,8 @@ from LiftAgent import LiftAgent
 from ModelDisplay import ModelDisplay
 from Coordinate import Coordinate
 from Settings import *
+from State import PersonType
+
 import Utils
 import random
 import numpy as np
@@ -23,7 +25,7 @@ class Model:
             pos = Utils.random_pos(Coordinate.Hall(0), (0, 2, 0, 0), "u")
             target_floor = random.randint(1, floor_count-1)
             target_pos = Utils.random_pos(Coordinate.Hall(target_floor), (0, 3, 0, 1), "u")
-            self.arrivingPersons.append(PersonAgent(arrive_time, pos, 0, target_floor, target_pos))
+            self.arrivingPersons.append(PersonAgent(arrive_time, pos, 0, target_floor, target_pos, PersonType.arriving))
         
         random.shuffle(classes_position)
         for i in range(classes_finished):
@@ -34,7 +36,7 @@ class Model:
                 person_time = class_finish_time + Utils.uniform(classes_empty_params) * 60
                 person_pos = Utils.random_pos(Coordinate.Hall(class_floor), (0, 2, 0, 0), class_room)
                 target_pos = Utils.random_pos(Coordinate.FirstFloorHall(), (0, 2, 0, 2), side="d")
-                self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos))
+                self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos, PersonType.returning))
 
         self.startTime = min([person.start_time for person in self.arrivingPersons])
         self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)

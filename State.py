@@ -9,6 +9,10 @@ class State:
     stairs_up = 7
     stairs_down = 8
 
+class PersonType:
+    arriving = 0
+    returning = 1
+
 class LiftState:
     open = 0
     opening = 1

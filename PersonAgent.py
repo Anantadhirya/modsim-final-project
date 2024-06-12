@@ -3,7 +3,7 @@ import random
 
 from Coordinate import Coordinate
 from Settings import *
-from State import State, LiftState
+from State import State, LiftState, PersonType
 import Utils
 
 class Target:
@@ -103,7 +103,7 @@ class Target:
         return [np.array([coordinate.x, coordinate.y])]
 
 class PersonAgent:
-    def __init__(self, start_time, pos, current_floor, target_floor, target_floor_pos):
+    def __init__(self, start_time, pos, current_floor, target_floor, target_floor_pos, person_type):
         self.start_time = start_time
         self.pos = pos
         self.grid_pos = pos
@@ -117,13 +117,15 @@ class PersonAgent:
         self.state = State.start
         self.target_lift = None
 
+        self.person_type = person_type
+
         # To debug stuck
         # self.stuck = 0
     
     def step(self, time, grid, lifts, gridLiftQueue, pressedLiftButton):
         if self.finish_time: return
 
-        if self.pos[1] <= Coordinate.FirstFloorHall().y2 - first_floor_hall_height/2:
+        if self.person_type == PersonType.returning and self.pos[1] <= Coordinate.FirstFloorHall().y2 - first_floor_hall_height/2:
             self.finish_time = time
             return
 
