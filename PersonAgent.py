@@ -122,6 +122,10 @@ class PersonAgent:
     def step(self, time, grid, lifts, gridLiftQueue, pressedLiftButton):
         if self.finish_time: return
 
+        if self.pos[1] <= Coordinate.FirstFloorHall().y2 - first_floor_hall_height/2:
+            self.finish_time = time
+            return
+
         # Set target
         if not self.target_pos:
             if self.current_floor == self.target_floor:

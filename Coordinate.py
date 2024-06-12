@@ -1,5 +1,7 @@
 from Settings import *
 from State import LiftState
+import Utils
+
 import numpy as np
 
 # Catatan: Semua koordinat dihitung dari kiri bawah
@@ -14,6 +16,9 @@ class Coordinate:
     @staticmethod
     def LiftHall(floor):
         return Coordinate(x=0, y=floor * (hall_height + gap), w=lift_hall_width, h=hall_height)
+    @staticmethod
+    def FirstFloorHall():
+        return Coordinate(x=lift_hall_width, y=-first_floor_hall_height, w=hall_width, h=first_floor_hall_height+1)
     @staticmethod
     def Hall(floor):
         return Coordinate(x=lift_hall_width, y=floor * (hall_height + gap), w=hall_width, h=hall_height)

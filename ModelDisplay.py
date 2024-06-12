@@ -34,6 +34,9 @@ class ModelDisplay:
 
     def initRectangles(self):
         self.rectangles = []
+
+        self.addRectangle(Coordinate.FirstFloorHall(), Color.wood)
+
         for floor in range(floor_count):
             self.addRectangle(Coordinate.LiftHall(floor), Color.wood)
             self.addRectangle(Coordinate.Hall(floor), Color.wood)
