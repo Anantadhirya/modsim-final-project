@@ -37,6 +37,8 @@ lift_stay_open_duration = 1 # how long a lift stays open from the last time a pe
 
 time_before_display_close = 60
 
+time_verbose_print = 3 # in seconds
+
 # class_hall_width = 3
 # class_hall_height = 0.3
 

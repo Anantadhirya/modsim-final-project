@@ -9,9 +9,10 @@ from Insight import Insight
 import Utils
 import random
 import numpy as np
+import time
 
 class Model:
-    def __init__(self, person_arriving, arrive_params, classes_finished, classes_person_params, classes_finish_params, classes_empty_params, display = False):
+    def __init__(self, person_arriving, arrive_params, classes_finished, classes_person_params, classes_finish_params, classes_empty_params, display = False, verbose = False):
         # Initialize Persons
         self.arrivingPersons = []
         self.persons = []
@@ -22,6 +23,10 @@ class Model:
         self.pressedLiftButton = [[np.array([False, False]) for _ in range(lift_count)] for _ in range(floor_count)]
         self.model_finish = None
         self.insight = Insight()
+        self.display = None
+        self.verbose = verbose
+        self.last_nodisplay_print_time = None
+        self.total_person = 0
 
         for _ in range(person_arriving):
             arrive_time = Utils.normal(arrive_params) * 60
@@ -43,6 +48,8 @@ class Model:
 
         self.startTime = min([person.start_time for person in self.arrivingPersons])
         self.arrivingPersons.sort(key=lambda person: person.start_time, reverse=True)
+
+        self.total_person = len(self.arrivingPersons)
 
         # Initialize Lifts
         self.lifts = [LiftAgent(self.startTime, i) for i in range(lift_count)]
@@ -106,6 +113,11 @@ class Model:
 
             if self.display:
                 self.display.redraw(self.persons, self.lifts, self.time, self.gridLiftQueue)
+            if self.verbose:
+                current_time = time.time()
+                if not self.last_nodisplay_print_time or (current_time - self.last_nodisplay_print_time) > time_verbose_print:
+                    self.last_nodisplay_print_time = current_time
+                    print(f"Progress: {len(self.arrivedPersons)}/{self.total_person} ({(len(self.arrivedPersons)/self.total_person*100):.2f}%)")
 
         # After simulation finish
         for person in self.arrivedPersons:
