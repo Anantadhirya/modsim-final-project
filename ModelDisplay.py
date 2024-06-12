@@ -114,4 +114,4 @@ class ModelDisplay:
         self.screen.blit(self.label, self.label_rect)
 
         pygame.display.flip()
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(display_fps)
