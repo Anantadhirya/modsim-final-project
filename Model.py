@@ -33,7 +33,7 @@ class Model:
             class_person_count = Utils.normal(classes_person_params)
             class_finish_time = Utils.normal(classes_finish_params) * 60
             for _ in range(round(class_person_count)):
-                person_time = class_finish_time + Utils.uniform(classes_empty_params) * 60
+                person_time = class_finish_time + Utils.normal(classes_empty_params) * 60
                 person_pos = Utils.random_pos(Coordinate.Hall(class_floor), (0, 2, 0, 0), class_room)
                 target_pos = Utils.random_pos(Coordinate.FirstFloorHall(), (0, 2, 0, 2), side="d")
                 self.arrivingPersons.append(PersonAgent(person_time, person_pos, class_floor, 0, target_pos, PersonType.returning))
