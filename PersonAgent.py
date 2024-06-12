@@ -7,6 +7,14 @@ from State import State, LiftState
 import Utils
 
 class Target:
+    queue_grid = [
+        "..xx..xx..",
+        "...x...x..",
+        "xxxxxxxxxx",
+        "xxxxxxxxxx",
+        "...x...x..",
+        "..xx..xx.."
+    ]
     @staticmethod
     def StairsUpQueue(floor):
         return [np.array([Coordinate.StairsUp(floor).x - 3, Coordinate.StairsUp(floor).y2])]
@@ -31,21 +39,15 @@ class Target:
         ]
     @staticmethod
     def LiftQueue(floor, lifts, grid, gridLiftQueue):
-        queue_grid = [
-            "..xx..xx..",
-            "...x...x..",
-            "xxxxxxxxxx",
-            "xxxxxxxxxx",
-            "...x...x..",
-            "..xx..xx.."
-        ]
         possible_queues = []
         for y in range(hall_height):
             for x in range(lift_hall_width):
                 queue_pos = np.array([Coordinate.LiftHall(floor).x + x, Coordinate.LiftHall(floor).y + y])
-                if not grid[Utils.key(queue_pos)] and queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
+                if not grid[Utils.key(queue_pos)] and Target.queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
                     if y == 0 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
+                    if y == 1 and Target.queue_grid[y-1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
                     if y == hall_height-1 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
+                    if y == hall_height-2 and Target.queue_grid[y+1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
                     possible_queues.append(queue_pos)
         # Heuristic
         def f(queue):
@@ -57,10 +59,10 @@ class Target:
                     Utils.norm(np.array([lift_door.x+1, lift_door.y]) - queue)
                 )
                 dist_floor = abs(lifts[lift].floor - floor) + (0 if lifts[lift].floor == floor else floor_count if (lifts[lift].floor < floor) != lifts[lift].direction_up else 0)
-                res.append((dist_pos + dist_floor, queue, lift))
+                res.append((dist_pos + dist_floor, queue))
             return res
         if not possible_queues:
-            return [], None
+            return []
         dist_queues = sorted([dist_queue for queue in possible_queues for dist_queue in f(queue)], key=lambda x: x[0])
         best_dist = min(queue[0] for queue in dist_queues)
         best_queues = [queue for queue in dist_queues if queue[0] == best_dist]
@@ -70,7 +72,24 @@ class Target:
             np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 2]),
             np.array([chosen_queue[1][0], Coordinate.LiftHall(floor).y + 2]),
             chosen_queue[1]
-        ], chosen_queue[2]
+        ]
+    @staticmethod
+    def LiftQueueMove(pos, floor, target_lift, gridLiftQueue):
+        coordinate = Coordinate.LiftHall(floor)
+        relative_pos = np.array([coordinate.x, coordinate.y])
+        door_pos = Target.LiftDoor(floor, target_lift)[0]
+        possible_moves = []
+        for move in Utils.adj(pos, True):
+            condition_closer = Utils.norm(door_pos - move) < Utils.norm(door_pos - pos)
+            condition_allowed = Utils.inside(move - relative_pos, [0, lift_hall_width-1], [0, hall_height-1]) and Target.queue_grid[move[1] - relative_pos[1]][move[0] - relative_pos[0]] != 'x'
+            condition_empty = not gridLiftQueue.get(Utils.key(move), 0)
+            condition_not_blocking = not gridLiftQueue.get(Utils.key(move + np.array([-1, 0] if move[1] - relative_pos[1] == 1 else [1, 0])), 0) if move[1] - relative_pos[1] == 1 or move[1] - relative_pos[1] == hall_height - 2 else True
+            if condition_closer and condition_allowed and condition_empty and condition_not_blocking:
+                possible_moves.append(move)
+        if possible_moves:
+            chosen_move = random.choice(possible_moves)
+            return [chosen_move]
+        return []
     @staticmethod
     def LiftExitRoute(pos, floor):
         return [
@@ -112,18 +131,36 @@ class PersonAgent:
                 else: self.target_pos = [self.target_floor_pos]
             elif self.state == State.start:
                 self.state = State.lift_queue
-                self.target_pos, self.target_lift = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
-                if not self.target_pos:
+                self.target_pos = Target.LiftQueue(self.current_floor, lifts, grid, gridLiftQueue)
+                if self.target_pos:
+                    best_lift = min((Utils.norm(self.target_pos[-1] - Target.LiftDoor(self.current_floor, i)[0]), i) for i in range(lift_count))
+                    self.target_lift = best_lift[1]
+                else:
                     self.state = State.stairs_queue
                     self.target_pos = Target.StairsUpQueue(self.current_floor) if self.target_floor > self.current_floor else Target.StairsDownQueue(self.current_floor)
             elif self.state == State.lift_queue:
                 target_lift = lifts[self.target_lift]
                 pressedLiftButton[self.current_floor][self.target_lift][self.target_floor > self.current_floor] = True
-                if target_lift.floor == self.current_floor and target_lift.state == LiftState.open and target_lift.person_count < lift_max_person and not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()]):
+                # Problem: kalau yang di belakang antrian masuk mau masuk duluan
+                door_coordinate = Coordinate.LiftDoorOutsideInt(self.current_floor, self.target_lift)
+                door_pos = np.array([door_coordinate.x, door_coordinate.y])
+                up = (door_pos[1] == Coordinate.LiftHall(self.current_floor).y2)
+                condition_nearest_to_door = np.any([Utils.equal_pos(self.grid_pos, door_pos + np.array(pos)) for pos in [[-1, 0], [2, 0], [0, -1 if up else 1]]])
+                condition_lift_open = target_lift.floor == self.current_floor and target_lift.state == LiftState.open
+                condition_lift_not_full = target_lift.person_count < lift_max_person
+                condition_lift_no_leaving = not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()])
+                print(self.pos, condition_nearest_to_door, condition_lift_open, condition_lift_not_full, condition_lift_no_leaving)
+                if condition_nearest_to_door and condition_lift_open and condition_lift_not_full and condition_lift_no_leaving:
                     target_lift.person_count += 1
                     self.state = State.lift_entering
                     self.target_pos = Target.LiftDoor(self.current_floor, self.target_lift)
                     gridLiftQueue[Utils.key(self.grid_pos)] = 0
+                else:
+                    queue_move = Target.LiftQueueMove(self.grid_pos, self.current_floor, self.target_lift, gridLiftQueue)
+                    if queue_move:
+                        self.target_pos.append(queue_move[0])
+                        gridLiftQueue[Utils.key(queue_move[0])] = 1
+                        gridLiftQueue[Utils.key(self.grid_pos)] = 0
             elif self.state == State.lift_entering:
                 if not lifts[self.target_lift].grid[Utils.key([0, 1])]:
                     self.state = State.lift_inside_entering
@@ -150,23 +187,32 @@ class PersonAgent:
                 self.current_floor -= 1
 
         # Move to target
+        disable_collision = [State.lift_queue]
         if self.target_pos:
-            if Utils.equal_pos(self.pos, self.grid_pos):
+            if self.state in disable_collision:
                 grid[Utils.key(self.grid_pos)] = None
-                possible_moves = [move for move in Utils.adj(self.grid_pos, True) if not grid.get(Utils.key(move), 1)]
-                dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
-                best_dist = min(move[0] for move in dist_moves)
-                best_moves = [move[1] for move in dist_moves if move[0] == best_dist]
-                self.grid_pos = random.choice(best_moves)
-                # To debug stuck
-                # if Utils.equal_pos(self.grid_pos, self.pos):
-                #     self.stuck += 1
-                # else:
-                #     self.stuck = 0
-                # if self.stuck > 20:
-                #     print(self.pos, self.target_pos[0], dist_moves)
-                #     print([(move, grid.get(Utils.key(move), 1)) for move in moves])
-                grid[Utils.key(self.grid_pos)] = self
-            self.pos = Utils.move(self.pos, self.grid_pos, self.speed)
-            if Utils.equal_pos(self.pos, self.target_pos[0]):
-                self.target_pos = self.target_pos[1:]
+                grid[Utils.key(self.target_pos[0])] = self
+                self.pos = Utils.move(self.pos, self.target_pos[0], self.speed)
+                if Utils.equal_pos(self.pos, self.target_pos[0]):
+                    self.grid_pos = self.target_pos[0]
+                    self.target_pos = self.target_pos[1:]
+            else:
+                if Utils.equal_pos(self.pos, self.grid_pos):
+                    grid[Utils.key(self.grid_pos)] = None
+                    possible_moves = [move for move in Utils.adj(self.grid_pos, True) if not grid.get(Utils.key(move), 1)]
+                    dist_moves = sorted([(Utils.norm(self.target_pos[0] - move), move) for move in possible_moves], key=lambda x: x[0])
+                    best_dist = min(move[0] for move in dist_moves)
+                    best_moves = [move[1] for move in dist_moves if move[0] == best_dist]
+                    self.grid_pos = random.choice(best_moves)
+                    # To debug stuck
+                    # if Utils.equal_pos(self.grid_pos, self.pos):
+                    #     self.stuck += 1
+                    # else:
+                    #     self.stuck = 0
+                    # if self.stuck > 20:
+                    #     print(self.pos, self.target_pos[0], dist_moves)
+                    #     print([(move, grid.get(Utils.key(move), 1)) for move in moves])
+                    grid[Utils.key(self.grid_pos)] = self
+                self.pos = Utils.move(self.pos, self.grid_pos, self.speed)
+                if Utils.equal_pos(self.pos, self.target_pos[0]):
+                    self.target_pos = self.target_pos[1:]

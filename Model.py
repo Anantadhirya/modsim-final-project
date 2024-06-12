@@ -94,4 +94,4 @@ class Model:
         while True:
             self.step()
             if self.display:
-                self.display.redraw(self.persons, self.lifts, self.time)
+                self.display.redraw(self.persons, self.lifts, self.time, self.gridLiftQueue)
