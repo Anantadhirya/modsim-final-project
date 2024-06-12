@@ -24,7 +24,7 @@ class LiftAgent:
         self.person_count = 0
         self.grid = {Utils.key([i, j]): None for i in range(4) for j in range(4)}
         self.target = np.array([False for _ in range(floor_count)])
-        self.speed = 0.5
+        self.speed = (hall_height + gap) / 3
     
     def actual_pos(self, grid_pos):
         return Coordinate.LiftGrid(self.lift_number, self.y, grid_pos[0], grid_pos[1])

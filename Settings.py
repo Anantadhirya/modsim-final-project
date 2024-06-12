@@ -32,8 +32,8 @@ lift_door_inside_gap = 1
 # lift_door_inside_gap = (lift_size - lift_door_width) / 2
 
 lift_max_person = 14
-lift_door_transition_duration = 5 # door open and close duration
-lift_stay_open_duration = 3 # how long a lift stays open from the last time a person entered or exit the lift
+lift_door_transition_duration = 1 # door open and close duration
+lift_stay_open_duration = 1 # how long a lift stays open from the last time a person entered or exit the lift
 
 # class_hall_width = 3
 # class_hall_height = 0.3

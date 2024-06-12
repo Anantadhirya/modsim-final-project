@@ -110,7 +110,7 @@ class PersonAgent:
         self.current_floor = current_floor
         self.target_floor = target_floor
         self.target_floor_pos = target_floor_pos
-        self.speed = 0.5
+        self.speed = 1.2
         
         self.finish_time = None
         self.target_pos = []
