@@ -10,8 +10,9 @@ class Target:
     queue_grid = [
         "..xx..xx..",
         "...x...x..",
+        "...x...x..",
         "xxxxxxxxxx",
-        "xxxxxxxxxx",
+        "...x...x..",
         "...x...x..",
         "..xx..xx.."
     ]
@@ -69,8 +70,8 @@ class Target:
         chosen_queue = random.choice(best_queues)
         gridLiftQueue[Utils.key(chosen_queue[1])] = 1
         return [
-            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 2]),
-            np.array([chosen_queue[1][0], Coordinate.LiftHall(floor).y + 2]),
+            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + (hall_height-1)//2]),
+            np.array([chosen_queue[1][0], Coordinate.LiftHall(floor).y + (hall_height-1)//2]),
             chosen_queue[1]
         ]
     @staticmethod
@@ -93,8 +94,8 @@ class Target:
     @staticmethod
     def LiftExitRoute(pos, floor):
         return [
-            np.array([pos[0], Coordinate.LiftHall(floor).y + 3]),
-            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + 3])
+            np.array([pos[0], Coordinate.LiftHall(floor).y + hall_height//2]),
+            np.array([Coordinate.LiftHall(floor).x2 + 1, Coordinate.LiftHall(floor).y + hall_height//2])
         ]
     @staticmethod
     def LiftDoor(floor, lift):
