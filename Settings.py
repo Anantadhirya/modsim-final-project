@@ -1,6 +1,9 @@
 time_step = 1
 person_size = 0.45
 
+# Behaviour Settings
+enter_lift_wrong_direction = True
+
 # SGLC Settings
 floor_count = 11
 lift_count = 4

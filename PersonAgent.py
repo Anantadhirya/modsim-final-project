@@ -45,10 +45,10 @@ class Target:
             for x in range(lift_hall_width):
                 queue_pos = np.array([Coordinate.LiftHall(floor).x + x, Coordinate.LiftHall(floor).y + y])
                 if not grid[Utils.key(queue_pos)] and Target.queue_grid[y][x] == "." and not gridLiftQueue.get(Utils.key(queue_pos), 0):
-                    if y == 0 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
-                    if y == 1 and Target.queue_grid[y-1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
-                    if y == hall_height-1 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
-                    if y == hall_height-2 and Target.queue_grid[y+1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
+                    # if y == 0 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
+                    # if y == 1 and Target.queue_grid[y-1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
+                    # if y == hall_height-1 and gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] - 1]), 0): continue
+                    # if y == hall_height-2 and Target.queue_grid[y+1][x] == "." and not gridLiftQueue.get(Utils.key([queue_pos[0], queue_pos[1] + 1]), 0): continue
                     possible_queues.append(queue_pos)
         # Heuristic
         def f(queue):
@@ -154,7 +154,7 @@ class PersonAgent:
                 condition_lift_open = target_lift.floor == self.current_floor and target_lift.state == LiftState.open
                 condition_lift_not_full = target_lift.person_count < lift_max_person
                 condition_lift_no_leaving = not np.any([person and person.state == State.lift_inside_leaving for person in target_lift.grid.values()])
-                condition_lift_direction = (self.target_floor > self.current_floor) == target_lift.direction_up
+                condition_lift_direction = enter_lift_wrong_direction or (self.target_floor > self.current_floor) == target_lift.direction_up
                 if condition_nearest_to_door and condition_lift_open and condition_lift_not_full and condition_lift_no_leaving and condition_lift_direction:
                     target_lift.person_count += 1
                     self.state = State.lift_entering
